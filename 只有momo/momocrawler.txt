@@ -1,0 +1,105 @@
+﻿import requests
+from bs4 import BeautifulSoup
+import urllib
+import re
+from django.shortcuts import render,redirect
+from django.urls import reverse
+from .models import GoodsType, GoodsDetail
+
+
+#momo爬蟲 商品數量約 5912700
+def momogoods(goodnumber):
+    link = 'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code='
+    url = link+str(goodnumber)   #選擇網址
+    user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.15) Gecko/20110303 Firefox/3.6.15' #偽裝使用者
+    headers = {'User-Agent':user_agent}
+    data_res = urllib.request.Request(url=url,headers=headers)
+    data = urllib.request.urlopen(data_res, timeout=20)
+    sp = BeautifulSoup(data, "lxml")
+    try:
+        #商品名稱
+        pdname_bs4 = sp.find("div",{"class":"prdnoteArea"}).find("h1")
+        pdname_text = str(pdname_bs4.text)
+        if re.findall('】',pdname_text):
+            pdname_getname = re.findall('(】.*)',pdname_text)
+            pdname_removesymbol = str(pdname_getname).strip('[').strip(']').strip("'").strip('】')
+            momopdname = pdname_removesymbol
+            #商品品牌
+            if  re.match('(【.*】.*【.*】)',pdname_text): #若商品名稱出現兩次賣場名稱
+                pdshop_removesecond = re.findall('(.*】.*【)',pdname_text) #先拿掉一個下括號避免查找錯誤
+                pdname_text = pdshop_removesecond
+            pdshop_bs4 = re.findall('(【.*】)',str(pdname_text))
+            pdshop_removesymbol = str(pdshop_bs4).replace("['【","").replace("】']","")
+            momopdshop = pdshop_removesymbol
+
+        else:
+            momopdname = pdname_text
+            momopdshop = '暫無賣場資訊'
+        #商品類別
+        try:
+            pdclass_bs4 = sp.find("div",{"id":"bt_2_layout_NAV"}).find("h5")
+            pdclass = str(pdclass_bs4.text)
+            if pdclass == '¬ü§©':
+                pdclass.replace('¬ü§©','美妝')
+            momopdclass = pdclass
+        except:
+            momopdclass = '尚無類別'
+        #商品價格
+        pdprice_bs4 = sp.find("li",{"class":"special"}).find("span")
+        momopdprice_removesymbol = str(pdprice_bs4.text).replace(',','')
+        momopdprice = momopdprice_removesymbol
+
+        #商品圖片連結
+        momoimgs_bs4 = sp.find("div",{"class":"gmclass"}).findAll("a", href = re.compile('goodsimg'))
+        for momoimg_getlink in momoimgs_bs4:
+            momoimg = 'https:'+ momoimg_getlink['href']
+        print(momopdname)
+        print(momopdprice)
+        print(momopdclass)
+        print(momopdshop)
+        print(momoimg)
+        print(url)
+        momosql(momopdname,momopdprice,momopdclass,momopdshop,momoimg,url)
+    except:
+       print('該編號無商品')
+
+
+def momosql(momopdname,momopdprice,momopdclass,momopdshop,momoimg,url):
+    goodname = momopdname
+    goodprice = momopdprice
+    goodshop = momopdshop
+    goodtype = momopdclass
+    goodlink = url
+    goodimglink = momoimg
+
+    try:
+        typename = GoodsType.objects.get(type_name=goodtype)
+        print('存入分類')
+    except:
+        typename = GoodsType.objects.create(type_name=goodtype)
+        print('創建分類')
+    typename.save()
+        
+    try:
+        momodb = GoodsDetail.objects.get(goodlink=goodlink)
+        momodb.goodname = goodname
+        momodb.goodprice = momopdprice
+        momodb.goodshop = momopdshop
+        momodb.goodtype = typename
+        momodb.goodlink = url
+        momodb.goodimglink = momoimg
+        momodb.save()
+        print('更新資料')
+    except:
+         momodb = GoodsDetail.objects.create(goodname=goodname, goodprice=goodprice, goodshop=goodshop, goodtype=typename, goodlink=goodlink, goodimglink=goodimglink)
+         momodb.save()
+         print('成功存入一筆資料')
+
+
+def momocrawler(request):
+    for code in range(5620357,5900162):
+        try:
+            momogoods(code)
+        except:
+            print("爬取錯誤")
+    return redirect('home')

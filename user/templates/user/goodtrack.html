@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load goodtypetags %}
+{% block title %}
+省錢人生
+{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/good_list.css' %}">
+{% endblock %}
+
+{% block content %}
+{% block h1 %}
+    <div>
+        <h1>目前查詢的分類為：追蹤的商品</h1>
+    </div>
+{% endblock %}
+<div class="container">
+    <div class="row" id="search">
+    </div>
+    <div class="row" id="equalheight">
+        <div class="col-sm-12 col-md-8 col-md-offset-2">
+            {% for good in goodtrack.goodtrack %}
+            <div class="col-sm-4 col-md-4">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="{{ good.5 }}" alt="{{ good.name }}" onload="loadImage()">
+                        <div class="caption">
+                            <p>{{ good.0 }}</p>
+                            <p>價格：{{ good.1 }}</p>
+                            <p>類別：{{ good.3 }}</p>
+                            <p>賣場：{{ good.2 }}</p>
+                            <p><a href="{{ good.4 }}" target="_blank" class="btn btn-primary" role="button">前往購買</a> <a href="{% url 'delgoodtrack' forloop.counter0 %}?from={{ request.get_full_path }}" class="btn btn-default" role="button">移除追蹤</a></p>
+                        </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

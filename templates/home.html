@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load goodtypetags %}
+{% block title %}
+省錢人生
+{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div>
+    <h1>歡迎光臨，省錢人生比價網</h1>
+</div>
+<div class="container">
+    <div class="row" id="search">
+        
+        <form id="menusearch" role="search" method="get" id="searchform" action="{% url 'haystack_search' %}">
+            <div class="form-group">
+                <div class="col-md-6 col-md-offset-2" id="menusearchinput">
+                    <input type="search" name="q" class="form-control" placeholder="Search">
+                </div>  
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-lg">省錢去</button>
+                </div>  
+            </div>  
+        </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

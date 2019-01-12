@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load goodtypetags %}
+{% block title %}
+省錢人生
+{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/good_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div>
+        <h1>目前查詢的關鍵字為：{{ query }}</h1>
+    </div>
+    <div class="row" id="equalheight">
+        <div class="col-sm-12 col-md-8 col-md-offset-2">
+            {% for result in page %}
+            <div class="col-sm-4 col-md-4">
+                <div class="ehdiv">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="{{ result.object.goodimglink }}" alt="{{ good.name }}">
+                        <div class="caption">
+                        <p>{{ result.object.goodname }}</p>
+                        <p>價格：{{ result.object.goodprice }}</p>
+                        <p>類別：<a href="#">{{ result.object.goodtype }}</a></p>
+                        <p>賣場：{{ result.object.goodshop }}</p>
+                        <p><a href="{{ result.object.goodlink }}" target="_blank" class="btn btn-primary" role="button">前往購買</a> <a href="#" class="btn btn-default" role="button">加入追蹤</a></p>
+                    </div>
+                </div>
+            </div>
+            </div>
+            {% empty %}
+                <div class="no-post"><h2>沒有搜索到相關內容，請重新搜尋</h2></div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}

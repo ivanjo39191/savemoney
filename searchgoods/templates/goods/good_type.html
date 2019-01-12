@@ -1,0 +1,29 @@
+{% extends 'goods/good_list.html' %}
+{% load staticfiles %}
+
+{% block title %}{{ type }}{% endblock %}
+{% block h1 %}
+    <div>
+        <h1>目前查詢的分類為：{{ type }}</h1>
+    </div>
+{% endblock %}
+{% block price_btn %}
+    <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    價格排序 <span class="caret"></span>
+    </button>
+        <ul class="dropdown-menu">
+        <li><a href="{% url 'good_type' type.pk 'cheap' %}">價格由低到高</a></li>
+        <li><a href="{% url 'good_type' type.pk 'expensive' %}">價格由高到低</a></li>
+        </ul>
+    </div>
+    <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    賣場選擇 <span class="caret"></span>
+    </button>
+        <ul class="dropdown-menu">
+        <li><a href="{% url 'good_type' type.pk 'momo' %}">momo購物網</a></li>
+        <li><a href="{% url 'good_type' type.pk 'PChome' %}">PChome購物中心</a></li>
+        </ul>
+    </div>
+{% endblock %}
